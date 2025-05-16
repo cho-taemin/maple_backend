@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Ping } from './ping.schema';
+import { Ping } from './schemas/ping.schema';
 
 @Controller()
 export class AppController {
