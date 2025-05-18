@@ -13,7 +13,6 @@ import { ConfigModule } from '@nestjs/config';
       envFilePath: ['.env'],
     }),
     MongooseModule.forRoot(process.env.MONGO_URI, {}),
-
     AuthModule,
     UsersModule,
   ],

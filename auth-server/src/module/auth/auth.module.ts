@@ -4,7 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { UserAccessLog, UserAccessLogSchema } from 'src/schemas/userAccessLog.schema';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -12,9 +13,14 @@ import { UsersService } from '../users/users.service';
       secret: process.env.JWT_SECRET || 'maple',
       signOptions: { expiresIn: '1h' },
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: UserAccessLog.name, schema: UserAccessLogSchema },
+    ]),
+    UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService],
+  providers: [AuthService],
+  exports: [AuthService],
 })
 export class AuthModule {}
