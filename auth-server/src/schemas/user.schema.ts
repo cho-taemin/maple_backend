@@ -3,10 +3,12 @@ import { Document } from 'mongoose';
 import { Role } from 'src/type/enum/roles.enum';
 
 @Schema({ timestamps: true })
-export class User extends Document {
-  @Prop({ unique: true }) email: string;
-  @Prop() username: string;
-  @Prop() password: string;
-  @Prop({ type: [String], enum: Role, default: [Role.USER] }) roles: Role[];
+export class User {
+  @Prop({ unique: true, required: true }) email: string;
+  @Prop({ required: true }) username: string;
+  @Prop({ required: true }) password: string;
+  @Prop({ type: String, enum: Role, required: true }) roles: Role;
 }
+
+export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,6 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Ping } from './schemas/ping.schema';
 
 @Controller()
 export class AppController {
@@ -9,10 +8,5 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
-  }
-
-  @Get('ping')
-  async ping(): Promise<Ping> {
-    return this.appService.createPing();
   }
 }
