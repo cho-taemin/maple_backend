@@ -21,7 +21,7 @@ export class Event {
   conditions: EventsCondition[];
 
   @Prop({ type: String, enum: RewardPayType })
-  rewardType: RewardPayType;
+  rewardPayType: RewardPayType;
 
   @Prop({ required: true })
   startDate: Date;

@@ -1,4 +1,4 @@
 export enum EventStatus {
-  OPENED = '활성',
-  CLOSED = '비활성',
+  OPENED = 'OPENED',
+  CLOSED = 'CLOSED',
 }

@@ -3,12 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Reward, RewardDocument } from '../../schema/rewards.schema';
-import { RewardType } from '../../type/enum/rewardType.enum';
 import { CreateRewardDto } from '../../dto/createReward.dto';
-import { RewardFilter } from '../../type/interface/rewardFilter.interface';
+import { RewardFilter } from '../../type/interface/reward.filter.interface';
+import { GetRewardListDto } from 'src/dto/getRewardList.dto';
 
 @Injectable()
-export class RewardService {
+export class RewardsService {
   constructor(
     @InjectModel(Reward.name) private rewardModel: Model<RewardDocument>,
   ) {}
@@ -24,7 +24,7 @@ export class RewardService {
         throw new BadRequestException('만료일은 현재 이후여야 합니다.');
       }
 
-      const createdReward = await this.rewardModel.create({ createRewardDto });
+      const createdReward = await this.rewardModel.create(createRewardDto);
 
       return createdReward;
     } catch (error) {
@@ -38,7 +38,7 @@ export class RewardService {
         throw new BadRequestException('유효하지 않은 보상 ID입니다.');
       }
 
-      const reward = await this.rewardModel.findById(rewardId);
+      const reward = await this.getRewardById(rewardId);
 
       if (!reward) {
         throw new NotFoundException('보상을 찾을 수 없습니다.');
@@ -50,12 +50,7 @@ export class RewardService {
     }
   }
 
-  async getRewardList(
-    page: number = 1,
-    limit: number = 10,
-    type?: RewardType,
-    isExpired?: boolean,
-  ): Promise<{
+  async getRewardList(getRewardListDto: GetRewardListDto): Promise<{
     rewards: RewardDocument[];
     total: number;
     page: number;
@@ -64,42 +59,54 @@ export class RewardService {
     try {
       const filter: RewardFilter = {};
 
-      if (type) {
-        filter.type = type;
+      if (getRewardListDto.type) {
+        filter.type = getRewardListDto.type;
       }
 
-      if (isExpired !== undefined) {
-        const now = new Date();
+      // if (getRewardListDto.isExpired !== undefined) {
+      //   if (getRewardListDto.isExpired) {
+      //     filter.$and = [
+      //       { expiryDate: { $exists: true } },
+      //       { expiryDate: { $ne: null } },
+      //     ];
+      //   } else {
+      //     filter.$or = [
+      //       { expiryDate: { $exists: false } },
+      //       { expiryDate: null },
+      //     ];
+      //   }
+      // }
 
-        if (isExpired) {
-          filter.expiryDate = { $lt: now };
-        } else {
-          filter.expiryDate = { $gt: now };
-        }
-      }
-
-      // 쿼리 실행
-      const skip = (page - 1) * limit;
+      const skip = (getRewardListDto.page - 1) * getRewardListDto.limit;
 
       const [rewards, total] = await Promise.all([
         this.rewardModel
           .find(filter)
-          .sort({ createdAt: -1 }) // 최신 보상 우선
+          .sort({ createdAt: -1 })
           .skip(skip)
-          .limit(limit),
+          .limit(getRewardListDto.limit),
         this.rewardModel.countDocuments(filter),
       ]);
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / getRewardListDto.limit);
 
       return {
         rewards,
         total,
-        page,
+        page: getRewardListDto.page,
         totalPages,
       };
     } catch (error) {
       throw error;
     }
+  }
+
+  async getRewardById(rewardId: string): Promise<RewardDocument> {
+    const reward = await this.rewardModel.findById(rewardId);
+    return reward;
+  }
+
+  async getRewardsByIds(ids: string[]): Promise<Reward[]> {
+    return await this.rewardModel.find({ _id: { $in: ids } });
   }
 }
