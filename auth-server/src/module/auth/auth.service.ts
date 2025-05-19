@@ -17,20 +17,16 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {
-    try {
-      const user = await this.usersService.findUserByEmail(loginDto.email);
-      if (!user) throw new NotFoundException('user not found');
+    const user = await this.usersService.findUserByEmail(loginDto.email);
+    if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다');
 
-      const isPasswordMatch = await bcrypt.compare(loginDto.password, user.password);
-      if (!isPasswordMatch) throw new UnauthorizedException('invalid password');
+    const isPasswordMatch = await bcrypt.compare(loginDto.password, user.password);
+    if (!isPasswordMatch) throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
 
-      const payload = { sub: user._id.toString(), email: user.email, username: user.username, roles: user.roles };
+    const payload = { sub: user._id.toString(), email: user.email, username: user.username, roles: user.roles };
 
-      await this.userAccessLogModel.create({ userId: user._id });
+    await this.userAccessLogModel.create({ userId: user._id });
 
-      return { access_token: this.jwt.sign(payload) };
-    } catch (error) {
-      throw error;
-    }
+    return { access_token: this.jwt.sign(payload) };
   }
 }

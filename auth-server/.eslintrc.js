@@ -53,7 +53,10 @@ module.exports = {
     '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/no-unused-vars': ['warn', { varsIgnorePattern: 'tw|_key' }],
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { varsIgnorePattern: 'tw|_key' },
+    ],
     '@typescript-eslint/no-var-requires': 'off',
   },
 };

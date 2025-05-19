@@ -14,29 +14,25 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-    try {
-      const isExists = await this.findUserByEmail(createUserDto.email);
-      if (isExists) throw new ConflictException('email exists');
+    const isExists = await this.findUserByEmail(createUserDto.email);
+    if (isExists) throw new ConflictException('이미 존재하는 이메일입니다');
 
-      const hash = await bcrypt.hash(createUserDto.password, 10);
-      const referralCode = await bcrypt.hash(createUserDto.email, 10);
+    const hash = await bcrypt.hash(createUserDto.password, 10);
+    const referralCode = await bcrypt.hash(createUserDto.email, 10);
 
-      const createdUser = await this.userModel.create({ ...createUserDto, password: hash, referralCode });
+    const createdUser = await this.userModel.create({ ...createUserDto, password: hash, referralCode });
 
-      if (createUserDto.referralCode) {
-        const referralUser = await this.findUserByReferralCode(createUserDto.referralCode);
+    if (createUserDto.referralCode) {
+      const referralUser = await this.findUserByReferralCode(createUserDto.referralCode);
 
-        if (!referralUser) {
-          throw new NotFoundException('Invalid referral code');
-        }
-
-        await this.userInviteLogModel.create({ userId: createdUser._id, referralUserId: referralUser._id });
+      if (!referralUser) {
+        throw new NotFoundException('유효하지 않은 추천 코드입니다');
       }
 
-      return createdUser;
-    } catch (error) {
-      throw error;
+      await this.userInviteLogModel.create({ userId: createdUser._id, referralUserId: referralUser._id });
     }
+
+    return createdUser;
   }
 
   async findUserByEmail(email: string): Promise<UserDocument> {
