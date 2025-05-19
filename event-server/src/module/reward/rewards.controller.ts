@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, ValidationPipe } from '@nestjs/common';
 import { CreateRewardDto } from '../../dto/createReward.dto';
 import { RewardDocument } from '../../schema/rewards.schema';
 import { RewardsService } from './rewards.service';
@@ -31,9 +23,7 @@ export class RewardsController {
   }
 
   @Get(':id')
-  async getRewardDetail(
-    @Param('id') rewardId: string,
-  ): Promise<RewardDocument> {
+  async getRewardDetail(@Param('id') rewardId: string): Promise<RewardDocument> {
     return this.rewardsService.getRewardDetail(rewardId);
   }
 

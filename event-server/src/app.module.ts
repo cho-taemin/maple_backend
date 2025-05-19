@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { RewardsModule } from './module/reward/rewards.module';
 import { RewardRequestModule } from './module/rewardRequest/rewardRequest.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './filters/httpException.filter';
 
 @Module({
   imports: [
@@ -19,6 +21,12 @@ import { RewardRequestModule } from './module/rewardRequest/rewardRequest.module
     RewardRequestModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

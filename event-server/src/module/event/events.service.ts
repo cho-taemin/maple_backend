@@ -32,51 +32,41 @@ export class EventsService {
   ) {}
 
   async createEvent(createEventDto: CreateEventDto): Promise<EventDocument> {
-    try {
-      const { startDate, endDate } = createEventDto;
-      if (new Date(startDate) < new Date()) {
-        throw new BadRequestException(
-          '시작일은 현재 시간보다 나중이어야 합니다.',
-        );
-      }
-
-      if (new Date(startDate) >= new Date(endDate)) {
-        throw new BadRequestException('종료일은 시작일보다 나중이어야 합니다.');
-      }
-
-      const rewardIds = createEventDto.rewards;
-      const existingRewards = await this.rewardModel.find({
-        _id: { $in: rewardIds },
-      });
-
-      if (existingRewards.length !== rewardIds.length) {
-        throw new BadRequestException('일부 보상이 유효하지 않습니다.');
-      }
-
-      const createdEvent = await this.eventModel.create(createEventDto);
-
-      return await this.getEventById(createdEvent._id.toString());
-    } catch (error) {
-      throw error;
+    const { startDate, endDate } = createEventDto;
+    if (new Date(startDate) < new Date()) {
+      throw new BadRequestException('시작일은 현재 시간보다 나중이어야 합니다');
     }
+
+    if (new Date(startDate) >= new Date(endDate)) {
+      throw new BadRequestException('종료일은 시작일보다 나중이어야 합니다');
+    }
+
+    const rewardIds = createEventDto.rewards;
+    const existingRewards = await this.rewardModel.find({
+      _id: { $in: rewardIds },
+    });
+
+    if (existingRewards.length !== rewardIds.length) {
+      throw new BadRequestException('일부 보상이 유효하지 않습니다');
+    }
+
+    const createdEvent = await this.eventModel.create(createEventDto);
+
+    return await this.getEventById(createdEvent._id.toString());
   }
 
   async getEventDetail(eventId: string) {
-    try {
-      if (!mongoose.Types.ObjectId.isValid(eventId)) {
-        throw new BadRequestException('유효하지 않은 이벤트 ID입니다.');
-      }
-
-      const event = await this.getEventById(eventId);
-
-      if (!event) {
-        throw new NotFoundException('이벤트를 찾을 수 없습니다.');
-      }
-
-      return event;
-    } catch (error) {
-      throw error;
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      throw new BadRequestException('유효하지 않은 이벤트 ID입니다');
     }
+
+    const event = await this.getEventById(eventId);
+
+    if (!event) {
+      throw new NotFoundException('이벤트를 찾을 수 없습니다');
+    }
+
+    return event;
   }
 
   async getEventList(
@@ -90,44 +80,40 @@ export class EventsService {
     page: number;
     totalPages: number;
   }> {
-    try {
-      const filter: EventFilter = {};
+    const filter: EventFilter = {};
 
-      if (status) {
-        filter.status = status;
-      }
-
-      if (condition) {
-        filter.conditions = { $in: [condition] };
-      }
-
-      // 쿼리 실행
-      const skip = (page - 1) * limit;
-
-      const [events, total] = await Promise.all([
-        this.eventModel
-          .find(filter)
-          .sort({ startDate: -1 })
-          .skip(skip)
-          .limit(limit)
-          .populate({
-            path: 'rewards',
-            select: 'name',
-          }),
-        this.eventModel.countDocuments(filter),
-      ]);
-
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        events,
-        total,
-        page,
-        totalPages,
-      };
-    } catch (error) {
-      throw error;
+    if (status) {
+      filter.status = status;
     }
+
+    if (condition) {
+      filter.conditions = { $in: [condition] };
+    }
+
+    // 쿼리 실행
+    const skip = (page - 1) * limit;
+
+    const [events, total] = await Promise.all([
+      this.eventModel
+        .find(filter)
+        .sort({ startDate: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: 'rewards',
+          select: 'name',
+        }),
+      this.eventModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      events,
+      total,
+      page,
+      totalPages,
+    };
   }
 
   async getEventById(eventId: string): Promise<EventDocument> {
@@ -141,7 +127,7 @@ export class EventsService {
   ): Promise<boolean> {
     const event = await this.getEventById(eventId);
     if (!event) {
-      throw new NotFoundException('이벤트를 찾을 수 없습니다.');
+      throw new NotFoundException('이벤트를 찾을 수 없습니다');
     }
 
     const eventConditions = event.conditions;
