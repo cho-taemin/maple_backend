@@ -7,6 +7,7 @@ import {
   Query,
   ForbiddenException,
   Request,
+  HttpException,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, map } from 'rxjs';
@@ -22,11 +23,6 @@ import {
   GetRewardListDto,
   GetRewardRequestListDto,
   GetEventListDto,
-  EventIdRequiredDto,
-  RewardIdRequiredDto,
-  RewardRequestIdRequiredDto,
-  UserIdOptionalDto,
-  UserIdRequiredDto,
 } from '../../dto';
 
 @Controller('api')
@@ -63,8 +59,10 @@ export class GatewayController {
 
       return response;
     } catch (error) {
+      console.log(error);
       if (error.response) {
-        throw error.response.data;
+        const errorData = error.response.data;
+        throw new HttpException(errorData, error.response.status || 500);
       } else {
         throw error;
       }
@@ -108,7 +106,7 @@ export class GatewayController {
 
   @Roles('ADMIN', 'OPERATOR')
   @Get('events/:eventId')
-  async getEventDetail(@Param('eventId') eventId: EventIdRequiredDto) {
+  async getEventDetail(@Param('eventId') eventId: string) {
     return this.sendRequest<any, any>('get', 'event', `events/${eventId}`);
   }
 
@@ -126,14 +124,14 @@ export class GatewayController {
   @Roles('ADMIN', 'OPERATOR')
   @Get('events/:eventId/check-conditions')
   async checkEventConditions(
-    @Param('eventId') eventId: EventIdRequiredDto,
-    @Query('userId') userId: UserIdRequiredDto,
+    @Param('eventId') eventId: string,
+    @Query('userId') userId: string,
   ) {
     return this.sendRequest<any, any>(
       'get',
       'event',
-      `events/${eventId}/check-conditions`,
-      userId,
+      `events/${eventId}/check-conditions?userId=${userId}`,
+      undefined,
     );
   }
 
@@ -151,7 +149,7 @@ export class GatewayController {
 
   @Roles('ADMIN', 'OPERATOR')
   @Get('rewards/:rewardId')
-  async getRewardDetail(@Param('rewardId') rewardId: RewardIdRequiredDto) {
+  async getRewardDetail(@Param('rewardId') rewardId: string) {
     return this.sendRequest<any, any>('get', 'event', `rewards/${rewardId}`);
   }
 
@@ -183,7 +181,7 @@ export class GatewayController {
   @Roles('ADMIN', 'OPERATOR')
   @Post('rewardRequest/:rewardRequestId/process')
   async processRewardRequest(
-    @Param('rewardRequestId') rewardRequestId: RewardRequestIdRequiredDto,
+    @Param('rewardRequestId') rewardRequestId: string,
   ) {
     return this.sendRequest<any, any>(
       'post',
@@ -195,9 +193,9 @@ export class GatewayController {
   @Get('rewardRequests/:rewardRequestId')
   @Roles('ADMIN', 'AUDITOR', 'USER', 'OPERATOR')
   async getRewardRequestById(
-    @Param('rewardRequestId') rewardRequestId: RewardRequestIdRequiredDto,
+    @Param('rewardRequestId') rewardRequestId: string,
     @Request() req: any,
-    @Query('userId') userId?: UserIdOptionalDto,
+    @Query('userId') userId?: string,
   ) {
     if (
       req.user.roles === 'ADMIN' ||
