@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Role } from 'src/roles.enum';
+import { Role } from 'src/type/enum/roles.enum';
 
 export class CreateUserDto {
   @IsEmail({}, { message: '유효한 이메일을 입력해주세요' })
