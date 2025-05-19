@@ -30,6 +30,8 @@ services:
 
   auth:
     build: ./auth-server
+    env_file:
+      - ./auth-server/.env
     depends_on:
       - mongodb
     ports: ["3001:3000"]
@@ -39,6 +41,8 @@ services:
 
   event:
     build: ./event-server
+    env_file:
+      - ./event-server/.env
     depends_on:
       - mongodb
     ports: ["3002:3000"]
@@ -48,6 +52,8 @@ services:
 
   gateway:
     build: ./gateway-server
+    env_file:
+      - ./gateway-server/.env
     depends_on:
       - mongodb
     ports: ["3003:3000"]
