@@ -166,7 +166,7 @@ export class GatewayController {
 
   // RewardRequest
   @Roles('USER')
-  @Post('reward-requests')
+  @Post('rewardRequest')
   async createRewardRequest(
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ) {
@@ -210,7 +210,7 @@ export class GatewayController {
     }
 
     if (req.user.role === 'USER' && userId === req.user.userId) {
-      return this.sendRequest<GetRewardRequestListDto, any>(
+      return this.sendRequest<any, any>(
         'get',
         'event',
         `rewardRequests/${rewardRequestId}`,
@@ -220,7 +220,7 @@ export class GatewayController {
     throw new ForbiddenException('접근 권한이 없습니다.');
   }
 
-  @Get('reward-requests')
+  @Get('rewardRequests')
   @Roles('ADMIN', 'AUDITOR', 'USER', 'OPERATOR')
   async getRewardRequests(
     @Query() getRewardRequestListDto: GetRewardRequestListDto,

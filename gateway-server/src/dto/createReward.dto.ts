@@ -26,9 +26,4 @@ export class CreateRewardDto {
   @IsNumber({}, { message: '보상 값은 숫자여야 합니다' })
   @IsNotEmpty({ message: '보상 값을 입력해주세요' })
   value: number;
-
-  @IsOptional()
-  @IsDate({ message: '유효한 날짜 형식이 아닙니다' })
-  @Type(() => Date)
-  expiryDate?: Date;
 }
